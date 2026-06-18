@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Momondo Affiliate Tools</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background: #f4f4f9;
+      color: #333;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    h1 {
+      margin-bottom: 30px;
+      color: #444;
+      font-size: 2rem;
+      text-align: center;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .tab {
+      padding: 12px 24px;
+      background: #fff;
+      border: 2px solid #ddd;
+      border-radius: 5px 5px 0 0;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .tab:hover {
+      background: #f0f0f0;
+    }
+
+    .tab.active {
+      background: #007BFF;
+      color: #fff;
+      border-color: #007BFF;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .container {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+      width: 90%;
+      max-width: 900px;
+      padding: 30px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+      color: #555;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 1rem;
+      box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+      box-sizing: border-box;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 150px;
+    }
+
+    textarea[readonly] {
+      background: #f0f0f0;
+      min-height: 300px;
+    }
+
+    .error {
+      color: #d9534f;
+      font-size: 0.9rem;
+      margin-top: 5px;
+    }
+
+    .success {
+      color: #28a745;
+      font-size: 0.9rem;
+      margin-top: 5px;
+      font-weight: bold;
+    }
+
+    button {
+      display: block;
+      width: 100%;
+      margin-top: 20px;
+      padding: 12px 20px;
+      font-size: 1.1rem;
+      color: #fff;
+      background-color: #007BFF;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+      transform: translateY(-2px);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    footer {
+      margin-top: 30px;
+      font-size: 0.9rem;
+      color: #666;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Momondo Affiliate Tools</h1>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('table')">Table Generator</div>
+    <div class="tab" onclick="switchTab('link')">Link Generator</div>
+  </div>
+
+  <div class="container">
+    <!-- Table Generator Tab -->
+    <div id="table-tab" class="tab-content active">
+      <h2 style="margin-top: 0;">Table Generator</h2>
+
+      <div class="form-group">
+        <label for="departureAirport">Departure Airport (3 letters):</label>
+        <input type="text" id="departureAirport" maxlength="3" />
+        <div class="error" id="departureError"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="arrivalAirport">Arrival Airport (3 letters):</label>
+        <input type="text" id="arrivalAirport" maxlength="3" />
+        <div class="error" id="arrivalError"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="hotelLink">Hotel Path (unique part):</label>
+        <input type="text" id="hotelLink"/>
+        <div class="error" id="hotelError"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="utmParam">UTM Parameter:</label>
+        <input type="text" id="utmParam" />
+        <div class="error" id="utmError"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="dates">Dates (paste dates here):</label>
+        <textarea id="dates"></textarea>
+        <div class="error" id="datesError"></div>
+      </div>
+
+      <button onclick="generateTable()">Generate Table</button>
+
+      <div class="form-group" style="margin-top: 30px;">
+        <label for="output">Generated Table:</label>
+        <textarea id="output" readonly></textarea>
+      </div>
+    </div>
+
+    <!-- Link Generator Tab -->
+    <div id="link-tab" class="tab-content">
+      <h2 style="margin-top: 0;">Link Generator</h2>
+
+      <div class="form-group">
+        <label for="sourceLink">Momondo Link:</label>
+        <input type="text" id="sourceLink"/>
+        <div class="error" id="linkError"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="utmParamLink">UTM Parameter:</label>
+        <input type="text" id="utmParamLink"/>
+        <div class="error" id="utmLinkError"></div>
+      </div>
+
+      <button onclick="generateAffiliateLink()">Create Affiliate Link</button>
+
+      <div class="form-group" style="margin-top: 30px;">
+        <label for="affiliateOutput">Generated Affiliate Link:</label>
+        <textarea id="affiliateOutput" rows="4" readonly></textarea>
+        <div class="success" id="copySuccess"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Tab Switching
+    function switchTab(tab) {
+      const tabs = document.querySelectorAll('.tab');
+      const contents = document.querySelectorAll('.tab-content');
+      
+      tabs.forEach(t => t.classList.remove('active'));
+      contents.forEach(c => c.classList.remove('active'));
+      
+      if (tab === 'table') {
+        tabs[0].classList.add('active');
+        document.getElementById('table-tab').classList.add('active');
+      } else {
+        tabs[1].classList.add('active');
+        document.getElementById('link-tab').classList.add('active');
+      }
+    }
+
+    // Link Generator Functions
+    function generateAffiliateLink() {
+      document.getElementById('linkError').textContent = '';
+      document.getElementById('utmLinkError').textContent = '';
+      document.getElementById('copySuccess').textContent = '';
+      document.getElementById('affiliateOutput').value = '';
+
+      const sourceLink = document.getElementById('sourceLink').value.trim();
+      const utmParam = document.getElementById('utmParamLink').value.trim();
+
+      let hasError = false;
+
+      if (!sourceLink) {
+        document.getElementById('linkError').textContent = 'Please provide a Momondo link';
+        hasError = true;
+      }
+
+      if (!utmParam) {
+        document.getElementById('utmLinkError').textContent = 'UTM parameter is required';
+        hasError = true;
+      }
+
+      if (hasError) return;
+
+      try {
+        const url = new URL(sourceLink);
+        const path = url.pathname;
+
+        let affiliateLink = '';
+
+        if (path.includes('/flight-search/')) {
+          // Extract flight info
+          const match = path.match(/\/flight-search\/([^\/]+\/\d{4}-\d{2}-\d{2}\/\d{4}-\d{2}-\d{2})/);
+          if (match) {
+            const flightInfo = match[1];
+            affiliateLink = `https://www.momondo.ro/in?a=kan_317693_592929&lc=ro&encoder=27_1&enc_pid=deeplinks&enc_lid=${encodeURIComponent(utmParam)}&url=/flight-search/${flightInfo}/1adults`;
+          } else {
+            document.getElementById('linkError').textContent = 'Could not parse flight link';
+            return;
+          }
+        } else if (path.includes('/hotel-search/')) {
+          // Extract hotel info
+          const match = path.match(/\/hotel-search\/([^\/]+\/\d{4}-\d{2}-\d{2}\/\d{4}-\d{2}-\d{2})/);
+          if (match) {
+            const hotelInfo = match[1];
+            affiliateLink = `https://www.momondo.ro/in?a=kan_317693_592929&lc=ro&encoder=27_1&enc_pid=deeplinks&enc_lid=${encodeURIComponent(utmParam)}&url=/hotel-search/${hotelInfo}/2adults`;
+          } else {
+            document.getElementById('linkError').textContent = 'Could not parse hotel link';
+            return;
+          }
+        } else {
+          document.getElementById('linkError').textContent = 'Link must contain flight-search or hotel-search';
+          return;
+        }
+
+        // Display the link
+        document.getElementById('affiliateOutput').value = affiliateLink;
+
+        // Copy to clipboard
+        navigator.clipboard.writeText(affiliateLink).then(() => {
+          document.getElementById('copySuccess').textContent = '✓ Link copied to clipboard!';
+        }).catch(() => {
+          document.getElementById('copySuccess').textContent = '✓ Link generated (manual copy needed)';
+        });
+
+      } catch (e) {
+        document.getElementById('linkError').textContent = 'Invalid URL format';
+      }
+    }
+
+    // Table Generator Functions
+    function validateAirportCode(code) {
+      return /^[A-Z]{3}$/i.test(code);
+    }
+
+    function renameMonth(month) {
+      const monthMapping = {
+        "Jan": "ian",
+        "Feb": "feb",
+        "Mar": "mar",
+        "Apr": "apr",
+        "May": "mai",
+        "Jun": "iun",
+        "Jul": "iul",
+        "Aug": "aug",
+        "Sept": "sep",
+        "Oct": "oct",
+        "Nov": "nov",
+        "Dec": "dec",
+      };
+      return monthMapping[month] || month;
+    }
+
+    function parseLine(line) {
+      if (!line) return null;
+      const parts = line.replace(',', '').trim().split(/\s+/);
+      if (parts.length < 3) return null;
+      const day = parts[1];
+      const month = parts[2];
+      return { day, month };
+    }
+
+    function getYearForMonth(month) {
+      const monthsBeforeMay = new Set(["Jan", "Feb", "Mar", "Apr"]);
+      return monthsBeforeMay.has(month) ? "2027" : "2026";
+    }
+
+    function parseKayakDates(lines) {
+      const datePairs = [];
+      const uniquePairs = new Set();
+      
+      for (let i = 0; i < lines.length; i += 2) {
+        const d1 = parseLine(lines[i]);
+        const d2 = parseLine(lines[i + 1]);
+        if (d1 && d2) {
+          const departureDate = `${getYearForMonth(d1.month)}-${getMonthNumber(d1.month)}-${d1.day.padStart(2, '0')}`;
+          const returnDate = `${getYearForMonth(d2.month)}-${getMonthNumber(d2.month)}-${d2.day.padStart(2, '0')}`;
+          
+          // Create unique key for this pair
+          const pairKey = `${departureDate}|${returnDate}`;
+          
+          // Only add if not already seen
+          if (!uniquePairs.has(pairKey)) {
+            uniquePairs.add(pairKey);
+            datePairs.push({ departureDate, returnDate, d1, d2 });
+          }
+        }
+      }
+      return datePairs;
+    }
+
+    function getMonthNumber(month) {
+      const months = {
+        "Jan": "01", "Feb": "02", "Mar": "03", "Apr": "04",
+        "May": "05", "Jun": "06", "Jul": "07", "Aug": "08",
+        "Sept": "09", "Oct": "10", "Nov": "11", "Dec": "12"
+      };
+      return months[month] || "01";
+    }
+
+    function formatDisplayDate(d1, d2) {
+      const day1 = d1.day;
+      const month1 = renameMonth(d1.month);
+      const year1 = getYearForMonth(d1.month);
+      const day2 = d2.day;
+      const month2 = renameMonth(d2.month);
+      const year2 = getYearForMonth(d2.month);
+
+      if (month1 === month2 && year1 === year2) {
+        return `${day1}-${day2} ${month1} ${year1}`;
+      } else if (year1 === year2) {
+        return `${day1} ${month1} - ${day2} ${month2} ${year1}`;
+      } else {
+        return `${day1} ${month1} ${year1} - ${day2} ${month2} ${year2}`;
+      }
+    }
+
+    function generateTable() {
+      // Clear errors
+      document.getElementById('departureError').textContent = '';
+      document.getElementById('arrivalError').textContent = '';
+      document.getElementById('hotelError').textContent = '';
+      document.getElementById('utmError').textContent = '';
+      document.getElementById('datesError').textContent = '';
+      document.getElementById('output').value = '';
+
+      // Get inputs
+      const departure = document.getElementById('departureAirport').value.trim().toUpperCase();
+      const arrival = document.getElementById('arrivalAirport').value.trim().toUpperCase();
+      const hotelPath = document.getElementById('hotelLink').value.trim();
+      const utmParam = document.getElementById('utmParam').value.trim();
+      const datesInput = document.getElementById('dates').value.trim();
+
+      let hasError = false;
+
+      // Validate departure
+      if (!validateAirportCode(departure)) {
+        document.getElementById('departureError').textContent = 'Must be exactly 3 letters';
+        hasError = true;
+      }
+
+      // Validate arrival
+      if (!validateAirportCode(arrival)) {
+        document.getElementById('arrivalError').textContent = 'Must be exactly 3 letters';
+        hasError = true;
+      }
+
+      // Validate hotel path
+      if (!hotelPath) {
+        document.getElementById('hotelError').textContent = 'Hotel path is required';
+        hasError = true;
+      }
+
+      // Validate UTM parameter
+      if (!utmParam) {
+        document.getElementById('utmError').textContent = 'UTM parameter is required';
+        hasError = true;
+      }
+
+      // Validate dates
+      const lines = datesInput.split('\n').filter(line => line.trim());
+      if (lines.length === 0 || lines.length % 2 !== 0) {
+        document.getElementById('datesError').textContent = 'Please provide pairs of dates (even number of lines)';
+        hasError = true;
+      }
+
+      if (hasError) return;
+
+      // Process dates
+      const datePairs = parseKayakDates(lines);
+      
+      if (datePairs.length === 0) {
+        document.getElementById('datesError').textContent = 'Could not parse dates';
+        return;
+      }
+
+      // Split dates into two columns
+      const midPoint = Math.ceil(datePairs.length / 2);
+      const leftColumn = datePairs.slice(0, midPoint);
+      const rightColumn = datePairs.slice(midPoint);
+
+      // Generate table rows
+      function generateRows(dates) {
+        return dates.map(pair => {
+          const displayDate = formatDisplayDate(pair.d1, pair.d2);
+          const flightLink = `https://www.momondo.ro/in?a=kan_317693_592929&lc=ro&encoder=27_1&enc_pid=deeplinks&enc_lid=${encodeURIComponent(utmParam)}&url=/flight-search/${departure}-${arrival}/${pair.departureDate}/${pair.returnDate}/1adults`;
+          const hotelLinkFull = `https://www.momondo.ro/in?a=kan_317693_592929&lc=ro&encoder=27_1&enc_pid=deeplinks&enc_lid=${encodeURIComponent(utmParam)}&url=/hotel-search/${hotelPath}/${pair.departureDate}/${pair.returnDate}/2adults`;
+          
+          return `<tr class="sws_gen_links_tr">
+<td class="sws_gen_links_td">${displayDate}: <strong> <a class="external" href="${flightLink}" rel="nofollow">ZBOR</a> | <a class="external" href="${hotelLinkFull}" rel="nofollow">CAZARE</a></strong></td>
+</tr>`;
+        }).join('\n');
+      }
+
+      const leftRows = generateRows(leftColumn);
+      const rightRows = generateRows(rightColumn);
+
+      // Generate final table
+      const table = `<table id="datealternative" class="tab-alt-offers tab-alt-offers-2cols" data-ic="ic-mod-ad">
+<tbody>
+<tr>
+<td class="tab-alt-offers-caption" colspan="2">Alte perioade disponibile</td>
+</tr>
+<tr>
+<td>
+<table class="sws_gen_links_table">
+<tbody>
+${leftRows}
+</tbody>
+</table>
+</td>
+<td>
+<table class="sws_gen_links_table">
+<tbody>
+${rightRows}
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>`;
+
+      document.getElementById('output').value = table;
+    }
+  </script>
+</body>
+</html>
