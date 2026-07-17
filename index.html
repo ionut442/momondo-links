@@ -5,137 +5,65 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Momondo Affiliate Tools</title>
   <style>
+    * { box-sizing: border-box; }
     body {
-      font-family: 'Arial', sans-serif;
-      background: #f4f4f9;
-      color: #333;
       margin: 0;
       padding: 20px;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      color: #333;
+      background: #f4f4f9;
     }
-
-    h1 {
-      margin-bottom: 30px;
-      color: #444;
-      font-size: 2rem;
-      text-align: center;
-    }
-
-    .tabs {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-
+    h1 { margin-bottom: 30px; color: #444; text-align: center; }
+    .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
     .tab {
       padding: 12px 24px;
-      background: #fff;
       border: 2px solid #ddd;
       border-radius: 5px 5px 0 0;
+      background: #fff;
       cursor: pointer;
       font-size: 1rem;
-      transition: all 0.3s ease;
     }
-
-    .tab:hover {
-      background: #f0f0f0;
-    }
-
-    .tab.active {
-      background: #007BFF;
-      color: #fff;
-      border-color: #007BFF;
-    }
-
-    .tab-content {
-      display: none;
-    }
-
-    .tab-content.active {
-      display: block;
-    }
-
+    .tab.active { color: #fff; border-color: #007bff; background: #007bff; }
     .container {
-      background: #fff;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
       width: 90%;
       max-width: 900px;
       padding: 30px;
+      border-radius: 10px;
+      background: #fff;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
     }
-
-    .form-group {
-      margin-bottom: 20px;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: bold;
-      color: #555;
-    }
-
-    input,
-    textarea {
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .form-group { margin-bottom: 20px; }
+    label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+    input, textarea {
       width: 100%;
       padding: 10px;
       border: 1px solid #ccc;
       border-radius: 5px;
-      font-size: 1rem;
+      font: inherit;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      box-sizing: border-box;
     }
-
-    textarea {
-      resize: vertical;
-      min-height: 150px;
-    }
-
-    textarea[readonly] {
-      background: #f0f0f0;
-      min-height: 300px;
-    }
-
-    .error {
-      color: #d9534f;
-      font-size: 0.9rem;
-      margin-top: 5px;
-    }
-
-    .success {
-      color: #28a745;
-      font-size: 0.9rem;
-      margin-top: 5px;
-      font-weight: bold;
-    }
-
+    textarea { min-height: 150px; resize: vertical; }
+    textarea[readonly] { min-height: 300px; background: #f0f0f0; }
+    .error { margin-top: 5px; color: #d9534f; font-size: 0.9rem; }
+    .success { margin-top: 5px; color: #28a745; font-size: 0.9rem; font-weight: bold; }
     button {
-      display: block;
       width: 100%;
       margin-top: 20px;
       padding: 12px 20px;
-      font-size: 1.1rem;
-      color: #fff;
-      background-color: #007BFF;
-      border: none;
+      border: 0;
       border-radius: 5px;
+      color: #fff;
+      background: #007bff;
       cursor: pointer;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-      transition: background-color 0.3s ease, transform 0.2s ease;
+      font-size: 1.1rem;
     }
-
-    button:hover {
-      background-color: #0056b3;
-      transform: translateY(-2px);
-    }
-
-    button:active {
-      transform: translateY(0);
-    }
-
+    button:hover { background: #0056b3; }
     .output-heading {
       display: flex;
       align-items: center;
@@ -143,13 +71,9 @@
       gap: 12px;
       margin-bottom: 5px;
     }
-
-    .output-heading label {
-      margin-bottom: 0;
-    }
-
+    .output-heading label { margin: 0; }
     .copy-button {
-      width: auto;
+      width: 38px;
       min-width: 38px;
       height: 38px;
       margin: 0;
@@ -157,20 +81,10 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      background: #333;
       border-radius: 7px;
-      box-shadow: none;
+      background: #333;
     }
-
-    .copy-button:hover {
-      background: #111;
-      transform: none;
-    }
-
-    .copy-button:active {
-      transform: scale(0.96);
-    }
-
+    .copy-button:hover { background: #111; }
     .copy-button svg {
       width: 20px;
       height: 20px;
@@ -182,61 +96,54 @@
     }
   </style>
 </head>
-
 <body>
   <h1>Momondo Affiliate Tools</h1>
 
   <div class="tabs">
-    <div class="tab active" onclick="switchTab('table')">Table Generator</div>
-    <div class="tab" onclick="switchTab('link')">Link Generator</div>
+    <button class="tab active" type="button" data-tab="table">Table Generator</button>
+    <button class="tab" type="button" data-tab="link">Link Generator</button>
   </div>
 
   <div class="container">
-    <div id="table-tab" class="tab-content active">
+    <section id="table-tab" class="tab-content active">
       <h2 style="margin-top: 0;">Table Generator</h2>
 
       <div class="form-group">
         <label for="departureAirport">Departure Airport (3 letters):</label>
-        <input type="text" id="departureAirport" maxlength="3" />
-        <div class="error" id="departureError"></div>
+        <input id="departureAirport" type="text" maxlength="3" />
+        <div id="departureError" class="error"></div>
       </div>
 
       <div class="form-group">
         <label for="arrivalAirport">Arrival Airport (3 letters):</label>
-        <input type="text" id="arrivalAirport" maxlength="3" />
-        <div class="error" id="arrivalError"></div>
+        <input id="arrivalAirport" type="text" maxlength="3" />
+        <div id="arrivalError" class="error"></div>
       </div>
 
       <div class="form-group">
         <label for="hotelLink">Hotel Path (unique part):</label>
-        <input type="text" id="hotelLink" />
-        <div class="error" id="hotelError"></div>
+        <input id="hotelLink" type="text" />
+        <div id="hotelError" class="error"></div>
       </div>
 
       <div class="form-group">
         <label for="utmParam">UTM Parameter:</label>
-        <input type="text" id="utmParam" />
-        <div class="error" id="utmError"></div>
+        <input id="utmParam" type="text" />
+        <div id="utmError" class="error"></div>
       </div>
 
       <div class="form-group">
         <label for="dates">Dates (paste dates here):</label>
         <textarea id="dates"></textarea>
-        <div class="error" id="datesError"></div>
+        <div id="datesError" class="error"></div>
       </div>
 
-      <button onclick="generateTable()">Generate Table</button>
+      <button id="generateTableButton" type="button">Generate Table</button>
 
       <div class="form-group" style="margin-top: 30px;">
         <div class="output-heading">
           <label for="output">Generated Table:</label>
-          <button
-            type="button"
-            class="copy-button"
-            onclick="copyTableOutput()"
-            aria-label="Copy generated table"
-            title="Copy generated table"
-          >
+          <button id="copyTableButton" type="button" class="copy-button" aria-label="Copy generated table" title="Copy generated table">
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <rect x="8" y="8" width="11" height="11" rx="2"></rect>
               <path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"></path>
@@ -244,51 +151,52 @@
           </button>
         </div>
         <textarea id="output" readonly></textarea>
-        <div class="success" id="tableCopySuccess"></div>
+        <div id="tableCopySuccess" class="success"></div>
       </div>
-    </div>
+    </section>
 
-    <div id="link-tab" class="tab-content">
+    <section id="link-tab" class="tab-content">
       <h2 style="margin-top: 0;">Link Generator</h2>
 
       <div class="form-group">
         <label for="sourceLink">Momondo Link:</label>
-        <input type="text" id="sourceLink" />
-        <div class="error" id="linkError"></div>
+        <input id="sourceLink" type="text" />
+        <div id="linkError" class="error"></div>
       </div>
 
       <div class="form-group">
         <label for="utmParamLink">UTM Parameter:</label>
-        <input type="text" id="utmParamLink" />
-        <div class="error" id="utmLinkError"></div>
+        <input id="utmParamLink" type="text" />
+        <div id="utmLinkError" class="error"></div>
       </div>
 
-      <button onclick="generateAffiliateLink()">Create Affiliate Link</button>
+      <button id="generateLinkButton" type="button">Create Affiliate Link</button>
 
       <div class="form-group" style="margin-top: 30px;">
         <label for="affiliateOutput">Generated Affiliate Link:</label>
         <textarea id="affiliateOutput" rows="4" readonly></textarea>
-        <div class="success" id="copySuccess"></div>
+        <div id="copySuccess" class="success"></div>
       </div>
-    </div>
+    </section>
   </div>
 
   <script>
-    function switchTab(tab) {
-      const tabs = document.querySelectorAll('.tab');
-      const contents = document.querySelectorAll('.tab-content');
+    const byId = id => document.getElementById(id);
 
-      tabs.forEach(item => item.classList.remove('active'));
-      contents.forEach(item => item.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(item => item.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(item => item.classList.remove('active'));
+        tab.classList.add('active');
+        byId(`${tab.dataset.tab}-tab`).classList.add('active');
+      });
+    });
 
-      if (tab === 'table') {
-        tabs[0].classList.add('active');
-        document.getElementById('table-tab').classList.add('active');
-      } else {
-        tabs[1].classList.add('active');
-        document.getElementById('link-tab').classList.add('active');
-      }
-    }
+    // Session-only, two-way UTM synchronization. Refreshing the page clears both fields.
+    const utmParam = byId('utmParam');
+    const utmParamLink = byId('utmParamLink');
+    utmParam.addEventListener('input', () => { utmParamLink.value = utmParam.value; });
+    utmParamLink.addEventListener('input', () => { utmParam.value = utmParamLink.value; });
 
     async function copyTextToClipboard(text, fallbackElement) {
       if (!text) return false;
@@ -298,15 +206,11 @@
           await navigator.clipboard.writeText(text);
           return true;
         } catch (error) {
-          // Continue to the selection-based fallback below.
+          // Fall back to selection-based copying.
         }
       }
 
       if (!fallbackElement) return false;
-
-      const previousSelectionStart = fallbackElement.selectionStart;
-      const previousSelectionEnd = fallbackElement.selectionEnd;
-
       try {
         fallbackElement.focus();
         fallbackElement.select();
@@ -314,15 +218,12 @@
         return document.execCommand('copy');
       } catch (error) {
         return false;
-      } finally {
-        fallbackElement.setSelectionRange(previousSelectionStart || 0, previousSelectionEnd || 0);
       }
     }
 
     async function copyTableOutput() {
-      const output = document.getElementById('output');
-      const status = document.getElementById('tableCopySuccess');
-
+      const output = byId('output');
+      const status = byId('tableCopySuccess');
       if (!output.value) {
         status.textContent = 'Generate the table first.';
         return;
@@ -335,117 +236,74 @@
     }
 
     async function generateAffiliateLink() {
-      document.getElementById('linkError').textContent = '';
-      document.getElementById('utmLinkError').textContent = '';
-      document.getElementById('copySuccess').textContent = '';
-      document.getElementById('affiliateOutput').value = '';
+      byId('linkError').textContent = '';
+      byId('utmLinkError').textContent = '';
+      byId('copySuccess').textContent = '';
+      byId('affiliateOutput').value = '';
 
-      const sourceLink = document.getElementById('sourceLink').value.trim();
-      const utmParam = document.getElementById('utmParamLink').value.trim();
+      const sourceLink = byId('sourceLink').value.trim();
+      const utm = utmParamLink.value.trim();
       let hasError = false;
 
       if (!sourceLink) {
-        document.getElementById('linkError').textContent = 'Please provide a Momondo link';
+        byId('linkError').textContent = 'Please provide a Momondo link';
         hasError = true;
       }
-
-      if (!utmParam) {
-        document.getElementById('utmLinkError').textContent = 'UTM parameter is required';
+      if (!utm) {
+        byId('utmLinkError').textContent = 'UTM parameter is required';
         hasError = true;
       }
-
       if (hasError) return;
 
       try {
-        const url = new URL(sourceLink);
-        const path = url.pathname;
+        const path = new URL(sourceLink).pathname;
         let affiliateLink = '';
 
         if (path.includes('/flight-search/')) {
-          const match = path.match(/\/flight-search\/([^\/]+\/\d{4}-\d{2}-\d{2}\/\d{4}-\d{2}-\d{2})/);
-          if (!match) {
-            document.getElementById('linkError').textContent = 'Could not parse flight link';
-            return;
-          }
-
-          affiliateLink = `https://www.momondo.ro/in?a=kan_317693_592929&lc=ro&encoder=27_1&enc_pid=deeplinks&enc_lid=${encodeURIComponent(utmParam)}&url=/flight-search/${match[1]}/1adults`;
+          const match = path.match(/\/flight-search\/([^/]+\/\d{4}-\d{2}-\d{2}\/\d{4}-\d{2}-\d{2})/);
+          if (!match) throw new Error('Could not parse flight link');
+          affiliateLink = `https://www.momondo.ro/in?a=kan_317693_592929&lc=ro&encoder=27_1&enc_pid=deeplinks&enc_lid=${encodeURIComponent(utm)}&url=/flight-search/${match[1]}/1adults`;
         } else if (path.includes('/hotel-search/')) {
-          const match = path.match(/\/hotel-search\/([^\/]+\/\d{4}-\d{2}-\d{2}\/\d{4}-\d{2}-\d{2})/);
-          if (!match) {
-            document.getElementById('linkError').textContent = 'Could not parse hotel link';
-            return;
-          }
-
-          affiliateLink = `https://www.momondo.ro/in?a=kan_317693_592929&lc=ro&encoder=27_1&enc_pid=deeplinks&enc_lid=${encodeURIComponent(utmParam)}&url=/hotel-search/${match[1]}/2adults`;
+          const match = path.match(/\/hotel-search\/([^/]+\/\d{4}-\d{2}-\d{2}\/\d{4}-\d{2}-\d{2})/);
+          if (!match) throw new Error('Could not parse hotel link');
+          affiliateLink = `https://www.momondo.ro/in?a=kan_317693_592929&lc=ro&encoder=27_1&enc_pid=deeplinks&enc_lid=${encodeURIComponent(utm)}&url=/hotel-search/${match[1]}/2adults`;
         } else {
-          document.getElementById('linkError').textContent = 'Link must contain flight-search or hotel-search';
-          return;
+          throw new Error('Link must contain flight-search or hotel-search');
         }
 
-        const output = document.getElementById('affiliateOutput');
+        const output = byId('affiliateOutput');
         output.value = affiliateLink;
-
         const copied = await copyTextToClipboard(affiliateLink, output);
-        document.getElementById('copySuccess').textContent = copied
+        byId('copySuccess').textContent = copied
           ? '✓ Link copied to clipboard!'
           : '✓ Link generated (manual copy needed)';
       } catch (error) {
-        document.getElementById('linkError').textContent = 'Invalid URL format';
+        byId('linkError').textContent = error.message || 'Invalid URL format';
       }
     }
 
-    function validateAirportCode(code) {
-      return /^[A-Z]{3}$/i.test(code);
-    }
+    const monthDisplay = {
+      Jan: 'ian', Feb: 'feb', Mar: 'mar', Apr: 'apr', May: 'mai', Jun: 'iun',
+      Jul: 'iul', Aug: 'aug', Sept: 'sep', Oct: 'oct', Nov: 'nov', Dec: 'dec'
+    };
+    const monthNumber = {
+      Jan: '01', Feb: '02', Mar: '03', Apr: '04', May: '05', Jun: '06',
+      Jul: '07', Aug: '08', Sept: '09', Oct: '10', Nov: '11', Dec: '12'
+    };
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
 
-    function renameMonth(month) {
-      const monthMapping = {
-        Jan: 'ian',
-        Feb: 'feb',
-        Mar: 'mar',
-        Apr: 'apr',
-        May: 'mai',
-        Jun: 'iun',
-        Jul: 'iul',
-        Aug: 'aug',
-        Sept: 'sep',
-        Oct: 'oct',
-        Nov: 'nov',
-        Dec: 'dec'
-      };
-      return monthMapping[month] || month;
-    }
-
-    function parseLine(line) {
+    function parseTextDate(line) {
       if (!line) return null;
       const parts = line.replace(',', '').trim().split(/\s+/);
-      if (parts.length < 3) return null;
-      return { day: parts[1], month: parts[2] };
+      if (parts.length < 3 || !monthNumber[parts[2]] || !/^\d{1,2}$/.test(parts[1])) return null;
+      return { day: String(Number(parts[1])), month: parts[2] };
     }
 
-    function getYearForMonth(month) {
-      const monthsBeforeMay = new Set(['Jan', 'Feb', 'Mar', 'Apr']);
-      return monthsBeforeMay.has(month) ? '2027' : '2026';
+    function inferredYear(month) {
+      return ['Jan', 'Feb', 'Mar', 'Apr'].includes(month) ? '2027' : '2026';
     }
 
-    function getMonthNumber(month) {
-      const months = {
-        Jan: '01', Feb: '02', Mar: '03', Apr: '04',
-        May: '05', Jun: '06', Jul: '07', Aug: '08',
-        Sept: '09', Oct: '10', Nov: '11', Dec: '12'
-      };
-      return months[month] || '01';
-    }
-
-    function getMonthName(monthNumber) {
-      const months = [
-        'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-        'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'
-      ];
-      return months[monthNumber - 1] || null;
-    }
-
-    function isValidNumericDate(day, month, year) {
+    function isValidDate(day, month, year) {
       const date = new Date(Date.UTC(year, month - 1, day));
       return date.getUTCFullYear() === year
         && date.getUTCMonth() === month - 1
@@ -456,213 +314,119 @@
       const match = line.trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})\s*-\s*(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
       if (!match) return null;
 
-      const [, day1Raw, month1Raw, year1Raw, day2Raw, month2Raw, year2Raw] = match;
-      const day1 = Number(day1Raw);
-      const month1 = Number(month1Raw);
-      const year1 = Number(year1Raw);
-      const day2 = Number(day2Raw);
-      const month2 = Number(month2Raw);
-      const year2 = Number(year2Raw);
-
-      if (!isValidNumericDate(day1, month1, year1) || !isValidNumericDate(day2, month2, year2)) {
-        return null;
-      }
-
-      const monthName1 = getMonthName(month1);
-      const monthName2 = getMonthName(month2);
-      if (!monthName1 || !monthName2) return null;
+      const values = match.slice(1).map(Number);
+      const [day1, month1, year1, day2, month2, year2] = values;
+      if (!isValidDate(day1, month1, year1) || !isValidDate(day2, month2, year2)) return null;
 
       return {
-        d1: { day: String(day1), month: monthName1, year: String(year1) },
-        d2: { day: String(day2), month: monthName2, year: String(year2) }
+        d1: { day: String(day1), month: monthNames[month1 - 1], year: String(year1) },
+        d2: { day: String(day2), month: monthNames[month2 - 1], year: String(year2) }
       };
     }
 
-    function detectDateFormat(lines) {
-      if (lines.length > 0 && lines.every(line => parseNumericRange(line))) {
-        return 'numeric-range';
-      }
+    function addPair(result, seen, d1, d2) {
+      const year1 = d1.year || inferredYear(d1.month);
+      const year2 = d2.year || inferredYear(d2.month);
+      const departureDate = `${year1}-${monthNumber[d1.month]}-${d1.day.padStart(2, '0')}`;
+      const returnDate = `${year2}-${monthNumber[d2.month]}-${d2.day.padStart(2, '0')}`;
+      const key = `${departureDate}|${returnDate}`;
 
-      if (lines.length > 0 && lines.length % 2 === 0 && lines.every(line => parseLine(line))) {
-        return 'kayak-lines';
-      }
-
-      return null;
-    }
-
-    function addUniqueDatePair(datePairs, uniquePairs, d1, d2) {
-      const year1 = d1.year || getYearForMonth(d1.month);
-      const year2 = d2.year || getYearForMonth(d2.month);
-      const departureDate = `${year1}-${getMonthNumber(d1.month)}-${d1.day.padStart(2, '0')}`;
-      const returnDate = `${year2}-${getMonthNumber(d2.month)}-${d2.day.padStart(2, '0')}`;
-      const pairKey = `${departureDate}|${returnDate}`;
-
-      if (!uniquePairs.has(pairKey)) {
-        uniquePairs.add(pairKey);
-        datePairs.push({ departureDate, returnDate, d1, d2 });
+      if (!seen.has(key)) {
+        seen.add(key);
+        result.push({ departureDate, returnDate, d1, d2 });
       }
     }
 
-    function parseKayakDates(lines) {
-      const datePairs = [];
-      const uniquePairs = new Set();
+    function parseDates(lines) {
+      const result = [];
+      const seen = new Set();
 
-      for (let index = 0; index < lines.length; index += 2) {
-        const d1 = parseLine(lines[index]);
-        const d2 = parseLine(lines[index + 1]);
-        if (d1 && d2) addUniqueDatePair(datePairs, uniquePairs, d1, d2);
+      if (lines.every(line => parseNumericRange(line))) {
+        lines.forEach(line => {
+          const range = parseNumericRange(line);
+          addPair(result, seen, range.d1, range.d2);
+        });
+      } else if (lines.length % 2 === 0 && lines.every(line => parseTextDate(line))) {
+        for (let index = 0; index < lines.length; index += 2) {
+          addPair(result, seen, parseTextDate(lines[index]), parseTextDate(lines[index + 1]));
+        }
       }
 
-      return datePairs;
-    }
-
-    function parseNumericDates(lines) {
-      const datePairs = [];
-      const uniquePairs = new Set();
-
-      lines.forEach(line => {
-        const range = parseNumericRange(line);
-        if (range) addUniqueDatePair(datePairs, uniquePairs, range.d1, range.d2);
-      });
-
-      return datePairs;
-    }
-
-    function parseDates(lines, format) {
-      if (format === 'numeric-range') return parseNumericDates(lines);
-      if (format === 'kayak-lines') return parseKayakDates(lines);
-      return [];
-    }
-
-    function sortDatePairsChronologically(datePairs) {
-      return datePairs.sort((a, b) => {
-        const departureComparison = a.departureDate.localeCompare(b.departureDate);
-        if (departureComparison !== 0) return departureComparison;
-        return a.returnDate.localeCompare(b.returnDate);
-      });
+      return result.sort((a, b) =>
+        a.departureDate.localeCompare(b.departureDate) || a.returnDate.localeCompare(b.returnDate)
+      );
     }
 
     function formatDisplayDate(d1, d2) {
-      const day1 = d1.day;
-      const month1 = renameMonth(d1.month);
-      const year1 = d1.year || getYearForMonth(d1.month);
-      const day2 = d2.day;
-      const month2 = renameMonth(d2.month);
-      const year2 = d2.year || getYearForMonth(d2.month);
+      const year1 = d1.year || inferredYear(d1.month);
+      const year2 = d2.year || inferredYear(d2.month);
+      const month1 = monthDisplay[d1.month];
+      const month2 = monthDisplay[d2.month];
 
-      if (month1 === month2 && year1 === year2) {
-        return `${day1}-${day2} ${month1} ${year1}`;
-      }
-
-      if (year1 === year2) {
-        return `${day1} ${month1} - ${day2} ${month2} ${year1}`;
-      }
-
-      return `${day1} ${month1} ${year1} - ${day2} ${month2} ${year2}`;
+      if (month1 === month2 && year1 === year2) return `${d1.day}-${d2.day} ${month1} ${year1}`;
+      if (year1 === year2) return `${d1.day} ${month1} - ${d2.day} ${month2} ${year1}`;
+      return `${d1.day} ${month1} ${year1} - ${d2.day} ${month2} ${year2}`;
     }
 
     async function generateTable() {
-      document.getElementById('departureError').textContent = '';
-      document.getElementById('arrivalError').textContent = '';
-      document.getElementById('hotelError').textContent = '';
-      document.getElementById('utmError').textContent = '';
-      document.getElementById('datesError').textContent = '';
-      document.getElementById('tableCopySuccess').textContent = '';
-      document.getElementById('output').value = '';
+      ['departureError', 'arrivalError', 'hotelError', 'utmError', 'datesError', 'tableCopySuccess']
+        .forEach(id => { byId(id).textContent = ''; });
+      byId('output').value = '';
 
-      const departure = document.getElementById('departureAirport').value.trim().toUpperCase();
-      const arrival = document.getElementById('arrivalAirport').value.trim().toUpperCase();
-      const hotelPath = document.getElementById('hotelLink').value.trim();
-      const utmParam = document.getElementById('utmParam').value.trim();
-      const datesInput = document.getElementById('dates').value.trim();
+      const departure = byId('departureAirport').value.trim().toUpperCase();
+      const arrival = byId('arrivalAirport').value.trim().toUpperCase();
+      const hotelPath = byId('hotelLink').value.trim();
+      const utm = utmParam.value.trim();
+      const lines = byId('dates').value.split('\n').map(line => line.trim()).filter(Boolean);
       let hasError = false;
 
-      if (!validateAirportCode(departure)) {
-        document.getElementById('departureError').textContent = 'Must be exactly 3 letters';
+      if (!/^[A-Z]{3}$/.test(departure)) {
+        byId('departureError').textContent = 'Must be exactly 3 letters';
         hasError = true;
       }
-
-      if (!validateAirportCode(arrival)) {
-        document.getElementById('arrivalError').textContent = 'Must be exactly 3 letters';
+      if (!/^[A-Z]{3}$/.test(arrival)) {
+        byId('arrivalError').textContent = 'Must be exactly 3 letters';
         hasError = true;
       }
-
       if (!hotelPath) {
-        document.getElementById('hotelError').textContent = 'Hotel path is required';
+        byId('hotelError').textContent = 'Hotel path is required';
+        hasError = true;
+      }
+      if (!utm) {
+        byId('utmError').textContent = 'UTM parameter is required';
         hasError = true;
       }
 
-      if (!utmParam) {
-        document.getElementById('utmError').textContent = 'UTM parameter is required';
+      const datePairs = parseDates(lines);
+      if (!datePairs.length) {
+        byId('datesError').textContent = 'Use either two-line dates (Wed 9 Sept / Thu 17 Sept) or one range per line (20/11/2026 - 06/12/2026)';
         hasError = true;
       }
-
-      const lines = datesInput.split('\n').filter(line => line.trim());
-      const dateFormat = detectDateFormat(lines);
-
-      if (!dateFormat) {
-        document.getElementById('datesError').textContent = 'Use either two-line dates (Wed 9 Sept / Thu 17 Sept) or one range per line (20/11/2026 - 06/12/2026)';
-        hasError = true;
-      }
-
       if (hasError) return;
 
-      const datePairs = sortDatePairsChronologically(parseDates(lines, dateFormat));
-      if (datePairs.length === 0) {
-        document.getElementById('datesError').textContent = 'Could not parse dates';
-        return;
-      }
+      const midpoint = Math.ceil(datePairs.length / 2);
+      const generateRows = dates => dates.map(pair => {
+        const displayDate = formatDisplayDate(pair.d1, pair.d2);
+        const flightLink = `https://www.momondo.ro/in?a=kan_317693_592929&lc=ro&encoder=27_1&enc_pid=deeplinks&enc_lid=${encodeURIComponent(utm)}&url=/flight-search/${departure}-${arrival}/${pair.departureDate}/${pair.returnDate}/1adults`;
+        const hotelLink = `https://www.momondo.ro/in?a=kan_317693_592929&lc=ro&encoder=27_1&enc_pid=deeplinks&enc_lid=${encodeURIComponent(utm)}&url=/hotel-search/${hotelPath}/${pair.departureDate}/${pair.returnDate}/2adults`;
+        return `<tr class="sws_gen_links_tr">\n<td class="sws_gen_links_td">${displayDate}: <strong> <a class="external" href="${flightLink}" rel="nofollow">ZBOR</a> | <a class="external" href="${hotelLink}" rel="nofollow">CAZARE</a></strong></td>\n</tr>`;
+      }).join('\n');
 
-      const midPoint = Math.ceil(datePairs.length / 2);
-      const leftColumn = datePairs.slice(0, midPoint);
-      const rightColumn = datePairs.slice(midPoint);
+      const leftRows = generateRows(datePairs.slice(0, midpoint));
+      const rightRows = generateRows(datePairs.slice(midpoint));
+      const table = `<table id="datealternative" class="tab-alt-offers tab-alt-offers-2cols" data-ic="ic-mod-ad">\n<tbody>\n<tr>\n<td class="tab-alt-offers-caption" colspan="2">Alte perioade disponibile</td>\n</tr>\n<tr>\n<td>\n<table class="sws_gen_links_table">\n<tbody>\n${leftRows}\n</tbody>\n</table>\n</td>\n<td>\n<table class="sws_gen_links_table">\n<tbody>\n${rightRows}\n</tbody>\n</table>\n</td>\n</tr>\n</tbody>\n</table>`;
 
-      function generateRows(dates) {
-        return dates.map(pair => {
-          const displayDate = formatDisplayDate(pair.d1, pair.d2);
-          const flightLink = `https://www.momondo.ro/in?a=kan_317693_592929&lc=ro&encoder=27_1&enc_pid=deeplinks&enc_lid=${encodeURIComponent(utmParam)}&url=/flight-search/${departure}-${arrival}/${pair.departureDate}/${pair.returnDate}/1adults`;
-          const hotelLinkFull = `https://www.momondo.ro/in?a=kan_317693_592929&lc=ro&encoder=27_1&enc_pid=deeplinks&enc_lid=${encodeURIComponent(utmParam)}&url=/hotel-search/${hotelPath}/${pair.departureDate}/${pair.returnDate}/2adults`;
-
-          return `<tr class="sws_gen_links_tr">
-<td class="sws_gen_links_td">${displayDate}: <strong> <a class="external" href="${flightLink}" rel="nofollow">ZBOR</a> | <a class="external" href="${hotelLinkFull}" rel="nofollow">CAZARE</a></strong></td>
-</tr>`;
-        }).join('\n');
-      }
-
-      const leftRows = generateRows(leftColumn);
-      const rightRows = generateRows(rightColumn);
-      const table = `<table id="datealternative" class="tab-alt-offers tab-alt-offers-2cols" data-ic="ic-mod-ad">
-<tbody>
-<tr>
-<td class="tab-alt-offers-caption" colspan="2">Alte perioade disponibile</td>
-</tr>
-<tr>
-<td>
-<table class="sws_gen_links_table">
-<tbody>
-${leftRows}
-</tbody>
-</table>
-</td>
-<td>
-<table class="sws_gen_links_table">
-<tbody>
-${rightRows}
-</tbody>
-</table>
-</td>
-</tr>
-</tbody>
-</table>`;
-
-      const output = document.getElementById('output');
+      const output = byId('output');
       output.value = table;
-
       const copied = await copyTextToClipboard(table, output);
-      document.getElementById('tableCopySuccess').textContent = copied
+      byId('tableCopySuccess').textContent = copied
         ? '✓ Table generated and copied to clipboard!'
         : '✓ Table generated. Use the copy icon to copy it.';
     }
+
+    byId('copyTableButton').addEventListener('click', copyTableOutput);
+    byId('generateTableButton').addEventListener('click', generateTable);
+    byId('generateLinkButton').addEventListener('click', generateAffiliateLink);
   </script>
 </body>
 </html>
