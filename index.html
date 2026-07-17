@@ -61,7 +61,7 @@
     .container {
       background: #fff;
       border-radius: 10px;
-      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
       width: 90%;
       max-width: 900px;
       padding: 30px;
@@ -78,13 +78,14 @@
       color: #555;
     }
 
-    input, textarea {
+    input,
+    textarea {
       width: 100%;
       padding: 10px;
       border: 1px solid #ccc;
       border-radius: 5px;
       font-size: 1rem;
-      box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       box-sizing: border-box;
     }
 
@@ -122,7 +123,7 @@
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
       transition: background-color 0.3s ease, transform 0.2s ease;
     }
 
@@ -135,10 +136,49 @@
       transform: translateY(0);
     }
 
-    footer {
-      margin-top: 30px;
-      font-size: 0.9rem;
-      color: #666;
+    .output-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 5px;
+    }
+
+    .output-heading label {
+      margin-bottom: 0;
+    }
+
+    .copy-button {
+      width: auto;
+      min-width: 38px;
+      height: 38px;
+      margin: 0;
+      padding: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #333;
+      border-radius: 7px;
+      box-shadow: none;
+    }
+
+    .copy-button:hover {
+      background: #111;
+      transform: none;
+    }
+
+    .copy-button:active {
+      transform: scale(0.96);
+    }
+
+    .copy-button svg {
+      width: 20px;
+      height: 20px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
     }
   </style>
 </head>
@@ -169,7 +209,7 @@
 
       <div class="form-group">
         <label for="hotelLink">Hotel Path (unique part):</label>
-        <input type="text" id="hotelLink"/>
+        <input type="text" id="hotelLink" />
         <div class="error" id="hotelError"></div>
       </div>
 
@@ -188,8 +228,23 @@
       <button onclick="generateTable()">Generate Table</button>
 
       <div class="form-group" style="margin-top: 30px;">
-        <label for="output">Generated Table:</label>
+        <div class="output-heading">
+          <label for="output">Generated Table:</label>
+          <button
+            type="button"
+            class="copy-button"
+            onclick="copyTableOutput()"
+            aria-label="Copy generated table"
+            title="Copy generated table"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="8" y="8" width="11" height="11" rx="2"></rect>
+              <path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"></path>
+            </svg>
+          </button>
+        </div>
         <textarea id="output" readonly></textarea>
+        <div class="success" id="tableCopySuccess"></div>
       </div>
     </div>
 
@@ -198,13 +253,13 @@
 
       <div class="form-group">
         <label for="sourceLink">Momondo Link:</label>
-        <input type="text" id="sourceLink"/>
+        <input type="text" id="sourceLink" />
         <div class="error" id="linkError"></div>
       </div>
 
       <div class="form-group">
         <label for="utmParamLink">UTM Parameter:</label>
-        <input type="text" id="utmParamLink"/>
+        <input type="text" id="utmParamLink" />
         <div class="error" id="utmLinkError"></div>
       </div>
 
@@ -223,8 +278,8 @@
       const tabs = document.querySelectorAll('.tab');
       const contents = document.querySelectorAll('.tab-content');
 
-      tabs.forEach(t => t.classList.remove('active'));
-      contents.forEach(c => c.classList.remove('active'));
+      tabs.forEach(item => item.classList.remove('active'));
+      contents.forEach(item => item.classList.remove('active'));
 
       if (tab === 'table') {
         tabs[0].classList.add('active');
@@ -235,7 +290,51 @@
       }
     }
 
-    function generateAffiliateLink() {
+    async function copyTextToClipboard(text, fallbackElement) {
+      if (!text) return false;
+
+      if (navigator.clipboard && window.isSecureContext) {
+        try {
+          await navigator.clipboard.writeText(text);
+          return true;
+        } catch (error) {
+          // Continue to the selection-based fallback below.
+        }
+      }
+
+      if (!fallbackElement) return false;
+
+      const previousSelectionStart = fallbackElement.selectionStart;
+      const previousSelectionEnd = fallbackElement.selectionEnd;
+
+      try {
+        fallbackElement.focus();
+        fallbackElement.select();
+        fallbackElement.setSelectionRange(0, fallbackElement.value.length);
+        return document.execCommand('copy');
+      } catch (error) {
+        return false;
+      } finally {
+        fallbackElement.setSelectionRange(previousSelectionStart || 0, previousSelectionEnd || 0);
+      }
+    }
+
+    async function copyTableOutput() {
+      const output = document.getElementById('output');
+      const status = document.getElementById('tableCopySuccess');
+
+      if (!output.value) {
+        status.textContent = 'Generate the table first.';
+        return;
+      }
+
+      const copied = await copyTextToClipboard(output.value, output);
+      status.textContent = copied
+        ? '✓ Table copied to clipboard!'
+        : 'Could not copy automatically. Please select and copy the output.';
+    }
+
+    async function generateAffiliateLink() {
       document.getElementById('linkError').textContent = '';
       document.getElementById('utmLinkError').textContent = '';
       document.getElementById('copySuccess').textContent = '';
@@ -243,7 +342,6 @@
 
       const sourceLink = document.getElementById('sourceLink').value.trim();
       const utmParam = document.getElementById('utmParamLink').value.trim();
-
       let hasError = false;
 
       if (!sourceLink) {
@@ -265,35 +363,33 @@
 
         if (path.includes('/flight-search/')) {
           const match = path.match(/\/flight-search\/([^\/]+\/\d{4}-\d{2}-\d{2}\/\d{4}-\d{2}-\d{2})/);
-          if (match) {
-            const flightInfo = match[1];
-            affiliateLink = `https://www.momondo.ro/in?a=kan_317693_592929&lc=ro&encoder=27_1&enc_pid=deeplinks&enc_lid=${encodeURIComponent(utmParam)}&url=/flight-search/${flightInfo}/1adults`;
-          } else {
+          if (!match) {
             document.getElementById('linkError').textContent = 'Could not parse flight link';
             return;
           }
+
+          affiliateLink = `https://www.momondo.ro/in?a=kan_317693_592929&lc=ro&encoder=27_1&enc_pid=deeplinks&enc_lid=${encodeURIComponent(utmParam)}&url=/flight-search/${match[1]}/1adults`;
         } else if (path.includes('/hotel-search/')) {
           const match = path.match(/\/hotel-search\/([^\/]+\/\d{4}-\d{2}-\d{2}\/\d{4}-\d{2}-\d{2})/);
-          if (match) {
-            const hotelInfo = match[1];
-            affiliateLink = `https://www.momondo.ro/in?a=kan_317693_592929&lc=ro&encoder=27_1&enc_pid=deeplinks&enc_lid=${encodeURIComponent(utmParam)}&url=/hotel-search/${hotelInfo}/2adults`;
-          } else {
+          if (!match) {
             document.getElementById('linkError').textContent = 'Could not parse hotel link';
             return;
           }
+
+          affiliateLink = `https://www.momondo.ro/in?a=kan_317693_592929&lc=ro&encoder=27_1&enc_pid=deeplinks&enc_lid=${encodeURIComponent(utmParam)}&url=/hotel-search/${match[1]}/2adults`;
         } else {
           document.getElementById('linkError').textContent = 'Link must contain flight-search or hotel-search';
           return;
         }
 
-        document.getElementById('affiliateOutput').value = affiliateLink;
+        const output = document.getElementById('affiliateOutput');
+        output.value = affiliateLink;
 
-        navigator.clipboard.writeText(affiliateLink).then(() => {
-          document.getElementById('copySuccess').textContent = '✓ Link copied to clipboard!';
-        }).catch(() => {
-          document.getElementById('copySuccess').textContent = '✓ Link generated (manual copy needed)';
-        });
-      } catch (e) {
+        const copied = await copyTextToClipboard(affiliateLink, output);
+        document.getElementById('copySuccess').textContent = copied
+          ? '✓ Link copied to clipboard!'
+          : '✓ Link generated (manual copy needed)';
+      } catch (error) {
         document.getElementById('linkError').textContent = 'Invalid URL format';
       }
     }
@@ -304,18 +400,18 @@
 
     function renameMonth(month) {
       const monthMapping = {
-        "Jan": "ian",
-        "Feb": "feb",
-        "Mar": "mar",
-        "Apr": "apr",
-        "May": "mai",
-        "Jun": "iun",
-        "Jul": "iul",
-        "Aug": "aug",
-        "Sept": "sep",
-        "Oct": "oct",
-        "Nov": "nov",
-        "Dec": "dec",
+        Jan: 'ian',
+        Feb: 'feb',
+        Mar: 'mar',
+        Apr: 'apr',
+        May: 'mai',
+        Jun: 'iun',
+        Jul: 'iul',
+        Aug: 'aug',
+        Sept: 'sep',
+        Oct: 'oct',
+        Nov: 'nov',
+        Dec: 'dec'
       };
       return monthMapping[month] || month;
     }
@@ -324,29 +420,27 @@
       if (!line) return null;
       const parts = line.replace(',', '').trim().split(/\s+/);
       if (parts.length < 3) return null;
-      const day = parts[1];
-      const month = parts[2];
-      return { day, month };
+      return { day: parts[1], month: parts[2] };
     }
 
     function getYearForMonth(month) {
-      const monthsBeforeMay = new Set(["Jan", "Feb", "Mar", "Apr"]);
-      return monthsBeforeMay.has(month) ? "2027" : "2026";
+      const monthsBeforeMay = new Set(['Jan', 'Feb', 'Mar', 'Apr']);
+      return monthsBeforeMay.has(month) ? '2027' : '2026';
     }
 
     function getMonthNumber(month) {
       const months = {
-        "Jan": "01", "Feb": "02", "Mar": "03", "Apr": "04",
-        "May": "05", "Jun": "06", "Jul": "07", "Aug": "08",
-        "Sept": "09", "Oct": "10", "Nov": "11", "Dec": "12"
+        Jan: '01', Feb: '02', Mar: '03', Apr: '04',
+        May: '05', Jun: '06', Jul: '07', Aug: '08',
+        Sept: '09', Oct: '10', Nov: '11', Dec: '12'
       };
-      return months[month] || "01";
+      return months[month] || '01';
     }
 
     function getMonthName(monthNumber) {
       const months = [
-        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-        "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"
+        'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+        'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'
       ];
       return months[monthNumber - 1] || null;
     }
@@ -413,12 +507,10 @@
       const datePairs = [];
       const uniquePairs = new Set();
 
-      for (let i = 0; i < lines.length; i += 2) {
-        const d1 = parseLine(lines[i]);
-        const d2 = parseLine(lines[i + 1]);
-        if (d1 && d2) {
-          addUniqueDatePair(datePairs, uniquePairs, d1, d2);
-        }
+      for (let index = 0; index < lines.length; index += 2) {
+        const d1 = parseLine(lines[index]);
+        const d2 = parseLine(lines[index + 1]);
+        if (d1 && d2) addUniqueDatePair(datePairs, uniquePairs, d1, d2);
       }
 
       return datePairs;
@@ -430,9 +522,7 @@
 
       lines.forEach(line => {
         const range = parseNumericRange(line);
-        if (range) {
-          addUniqueDatePair(datePairs, uniquePairs, range.d1, range.d2);
-        }
+        if (range) addUniqueDatePair(datePairs, uniquePairs, range.d1, range.d2);
       });
 
       return datePairs;
@@ -462,19 +552,22 @@
 
       if (month1 === month2 && year1 === year2) {
         return `${day1}-${day2} ${month1} ${year1}`;
-      } else if (year1 === year2) {
-        return `${day1} ${month1} - ${day2} ${month2} ${year1}`;
-      } else {
-        return `${day1} ${month1} ${year1} - ${day2} ${month2} ${year2}`;
       }
+
+      if (year1 === year2) {
+        return `${day1} ${month1} - ${day2} ${month2} ${year1}`;
+      }
+
+      return `${day1} ${month1} ${year1} - ${day2} ${month2} ${year2}`;
     }
 
-    function generateTable() {
+    async function generateTable() {
       document.getElementById('departureError').textContent = '';
       document.getElementById('arrivalError').textContent = '';
       document.getElementById('hotelError').textContent = '';
       document.getElementById('utmError').textContent = '';
       document.getElementById('datesError').textContent = '';
+      document.getElementById('tableCopySuccess').textContent = '';
       document.getElementById('output').value = '';
 
       const departure = document.getElementById('departureAirport').value.trim().toUpperCase();
@@ -482,7 +575,6 @@
       const hotelPath = document.getElementById('hotelLink').value.trim();
       const utmParam = document.getElementById('utmParam').value.trim();
       const datesInput = document.getElementById('dates').value.trim();
-
       let hasError = false;
 
       if (!validateAirportCode(departure)) {
@@ -516,7 +608,6 @@
       if (hasError) return;
 
       const datePairs = sortDatePairsChronologically(parseDates(lines, dateFormat));
-
       if (datePairs.length === 0) {
         document.getElementById('datesError').textContent = 'Could not parse dates';
         return;
@@ -540,7 +631,6 @@
 
       const leftRows = generateRows(leftColumn);
       const rightRows = generateRows(rightColumn);
-
       const table = `<table id="datealternative" class="tab-alt-offers tab-alt-offers-2cols" data-ic="ic-mod-ad">
 <tbody>
 <tr>
@@ -565,7 +655,13 @@ ${rightRows}
 </tbody>
 </table>`;
 
-      document.getElementById('output').value = table;
+      const output = document.getElementById('output');
+      output.value = table;
+
+      const copied = await copyTextToClipboard(table, output);
+      document.getElementById('tableCopySuccess').textContent = copied
+        ? '✓ Table generated and copied to clipboard!'
+        : '✓ Table generated. Use the copy icon to copy it.';
     }
   </script>
 </body>
