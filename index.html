@@ -152,7 +152,6 @@
   </div>
 
   <div class="container">
-    <!-- Table Generator Tab -->
     <div id="table-tab" class="tab-content active">
       <h2 style="margin-top: 0;">Table Generator</h2>
 
@@ -194,7 +193,6 @@
       </div>
     </div>
 
-    <!-- Link Generator Tab -->
     <div id="link-tab" class="tab-content">
       <h2 style="margin-top: 0;">Link Generator</h2>
 
@@ -221,14 +219,13 @@
   </div>
 
   <script>
-    // Tab Switching
     function switchTab(tab) {
       const tabs = document.querySelectorAll('.tab');
       const contents = document.querySelectorAll('.tab-content');
-      
+
       tabs.forEach(t => t.classList.remove('active'));
       contents.forEach(c => c.classList.remove('active'));
-      
+
       if (tab === 'table') {
         tabs[0].classList.add('active');
         document.getElementById('table-tab').classList.add('active');
@@ -238,7 +235,6 @@
       }
     }
 
-    // Link Generator Functions
     function generateAffiliateLink() {
       document.getElementById('linkError').textContent = '';
       document.getElementById('utmLinkError').textContent = '';
@@ -265,11 +261,9 @@
       try {
         const url = new URL(sourceLink);
         const path = url.pathname;
-
         let affiliateLink = '';
 
         if (path.includes('/flight-search/')) {
-          // Extract flight info
           const match = path.match(/\/flight-search\/([^\/]+\/\d{4}-\d{2}-\d{2}\/\d{4}-\d{2}-\d{2})/);
           if (match) {
             const flightInfo = match[1];
@@ -279,7 +273,6 @@
             return;
           }
         } else if (path.includes('/hotel-search/')) {
-          // Extract hotel info
           const match = path.match(/\/hotel-search\/([^\/]+\/\d{4}-\d{2}-\d{2}\/\d{4}-\d{2}-\d{2})/);
           if (match) {
             const hotelInfo = match[1];
@@ -293,22 +286,18 @@
           return;
         }
 
-        // Display the link
         document.getElementById('affiliateOutput').value = affiliateLink;
 
-        // Copy to clipboard
         navigator.clipboard.writeText(affiliateLink).then(() => {
           document.getElementById('copySuccess').textContent = '✓ Link copied to clipboard!';
         }).catch(() => {
           document.getElementById('copySuccess').textContent = '✓ Link generated (manual copy needed)';
         });
-
       } catch (e) {
         document.getElementById('linkError').textContent = 'Invalid URL format';
       }
     }
 
-    // Table Generator Functions
     function validateAirportCode(code) {
       return /^[A-Z]{3}$/i.test(code);
     }
@@ -345,30 +334,6 @@
       return monthsBeforeMay.has(month) ? "2027" : "2026";
     }
 
-    function parseKayakDates(lines) {
-      const datePairs = [];
-      const uniquePairs = new Set();
-      
-      for (let i = 0; i < lines.length; i += 2) {
-        const d1 = parseLine(lines[i]);
-        const d2 = parseLine(lines[i + 1]);
-        if (d1 && d2) {
-          const departureDate = `${getYearForMonth(d1.month)}-${getMonthNumber(d1.month)}-${d1.day.padStart(2, '0')}`;
-          const returnDate = `${getYearForMonth(d2.month)}-${getMonthNumber(d2.month)}-${d2.day.padStart(2, '0')}`;
-          
-          // Create unique key for this pair
-          const pairKey = `${departureDate}|${returnDate}`;
-          
-          // Only add if not already seen
-          if (!uniquePairs.has(pairKey)) {
-            uniquePairs.add(pairKey);
-            datePairs.push({ departureDate, returnDate, d1, d2 });
-          }
-        }
-      }
-      return datePairs;
-    }
-
     function getMonthNumber(month) {
       const months = {
         "Jan": "01", "Feb": "02", "Mar": "03", "Apr": "04",
@@ -378,13 +343,114 @@
       return months[month] || "01";
     }
 
+    function getMonthName(monthNumber) {
+      const months = [
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+        "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"
+      ];
+      return months[monthNumber - 1] || null;
+    }
+
+    function isValidNumericDate(day, month, year) {
+      const date = new Date(Date.UTC(year, month - 1, day));
+      return date.getUTCFullYear() === year
+        && date.getUTCMonth() === month - 1
+        && date.getUTCDate() === day;
+    }
+
+    function parseNumericRange(line) {
+      const match = line.trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})\s*-\s*(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+      if (!match) return null;
+
+      const [, day1Raw, month1Raw, year1Raw, day2Raw, month2Raw, year2Raw] = match;
+      const day1 = Number(day1Raw);
+      const month1 = Number(month1Raw);
+      const year1 = Number(year1Raw);
+      const day2 = Number(day2Raw);
+      const month2 = Number(month2Raw);
+      const year2 = Number(year2Raw);
+
+      if (!isValidNumericDate(day1, month1, year1) || !isValidNumericDate(day2, month2, year2)) {
+        return null;
+      }
+
+      const monthName1 = getMonthName(month1);
+      const monthName2 = getMonthName(month2);
+      if (!monthName1 || !monthName2) return null;
+
+      return {
+        d1: { day: String(day1), month: monthName1, year: String(year1) },
+        d2: { day: String(day2), month: monthName2, year: String(year2) }
+      };
+    }
+
+    function detectDateFormat(lines) {
+      if (lines.length > 0 && lines.every(line => parseNumericRange(line))) {
+        return 'numeric-range';
+      }
+
+      if (lines.length > 0 && lines.length % 2 === 0 && lines.every(line => parseLine(line))) {
+        return 'kayak-lines';
+      }
+
+      return null;
+    }
+
+    function addUniqueDatePair(datePairs, uniquePairs, d1, d2) {
+      const year1 = d1.year || getYearForMonth(d1.month);
+      const year2 = d2.year || getYearForMonth(d2.month);
+      const departureDate = `${year1}-${getMonthNumber(d1.month)}-${d1.day.padStart(2, '0')}`;
+      const returnDate = `${year2}-${getMonthNumber(d2.month)}-${d2.day.padStart(2, '0')}`;
+      const pairKey = `${departureDate}|${returnDate}`;
+
+      if (!uniquePairs.has(pairKey)) {
+        uniquePairs.add(pairKey);
+        datePairs.push({ departureDate, returnDate, d1, d2 });
+      }
+    }
+
+    function parseKayakDates(lines) {
+      const datePairs = [];
+      const uniquePairs = new Set();
+
+      for (let i = 0; i < lines.length; i += 2) {
+        const d1 = parseLine(lines[i]);
+        const d2 = parseLine(lines[i + 1]);
+        if (d1 && d2) {
+          addUniqueDatePair(datePairs, uniquePairs, d1, d2);
+        }
+      }
+
+      return datePairs;
+    }
+
+    function parseNumericDates(lines) {
+      const datePairs = [];
+      const uniquePairs = new Set();
+
+      lines.forEach(line => {
+        const range = parseNumericRange(line);
+        if (range) {
+          addUniqueDatePair(datePairs, uniquePairs, range.d1, range.d2);
+        }
+      });
+
+      return datePairs;
+    }
+
+    function parseDates(lines, format) {
+      if (format === 'numeric-range') return parseNumericDates(lines);
+      if (format === 'kayak-lines') return parseKayakDates(lines);
+      return [];
+    }
+
     function formatDisplayDate(d1, d2) {
       const day1 = d1.day;
       const month1 = renameMonth(d1.month);
-      const year1 = getYearForMonth(d1.month);
+      const year1 = d1.year || getYearForMonth(d1.month);
       const day2 = d2.day;
       const month2 = renameMonth(d2.month);
-      const year2 = getYearForMonth(d2.month);
+      const year2 = d2.year || getYearForMonth(d2.month);
 
       if (month1 === month2 && year1 === year2) {
         return `${day1}-${day2} ${month1} ${year1}`;
@@ -396,7 +462,6 @@
     }
 
     function generateTable() {
-      // Clear errors
       document.getElementById('departureError').textContent = '';
       document.getElementById('arrivalError').textContent = '';
       document.getElementById('hotelError').textContent = '';
@@ -404,7 +469,6 @@
       document.getElementById('datesError').textContent = '';
       document.getElementById('output').value = '';
 
-      // Get inputs
       const departure = document.getElementById('departureAirport').value.trim().toUpperCase();
       const arrival = document.getElementById('arrivalAirport').value.trim().toUpperCase();
       const hotelPath = document.getElementById('hotelLink').value.trim();
@@ -413,59 +477,53 @@
 
       let hasError = false;
 
-      // Validate departure
       if (!validateAirportCode(departure)) {
         document.getElementById('departureError').textContent = 'Must be exactly 3 letters';
         hasError = true;
       }
 
-      // Validate arrival
       if (!validateAirportCode(arrival)) {
         document.getElementById('arrivalError').textContent = 'Must be exactly 3 letters';
         hasError = true;
       }
 
-      // Validate hotel path
       if (!hotelPath) {
         document.getElementById('hotelError').textContent = 'Hotel path is required';
         hasError = true;
       }
 
-      // Validate UTM parameter
       if (!utmParam) {
         document.getElementById('utmError').textContent = 'UTM parameter is required';
         hasError = true;
       }
 
-      // Validate dates
       const lines = datesInput.split('\n').filter(line => line.trim());
-      if (lines.length === 0 || lines.length % 2 !== 0) {
-        document.getElementById('datesError').textContent = 'Please provide pairs of dates (even number of lines)';
+      const dateFormat = detectDateFormat(lines);
+
+      if (!dateFormat) {
+        document.getElementById('datesError').textContent = 'Use either two-line dates (Wed 9 Sept / Thu 17 Sept) or one range per line (20/11/2026 - 06/12/2026)';
         hasError = true;
       }
 
       if (hasError) return;
 
-      // Process dates
-      const datePairs = parseKayakDates(lines);
-      
+      const datePairs = parseDates(lines, dateFormat);
+
       if (datePairs.length === 0) {
         document.getElementById('datesError').textContent = 'Could not parse dates';
         return;
       }
 
-      // Split dates into two columns
       const midPoint = Math.ceil(datePairs.length / 2);
       const leftColumn = datePairs.slice(0, midPoint);
       const rightColumn = datePairs.slice(midPoint);
 
-      // Generate table rows
       function generateRows(dates) {
         return dates.map(pair => {
           const displayDate = formatDisplayDate(pair.d1, pair.d2);
           const flightLink = `https://www.momondo.ro/in?a=kan_317693_592929&lc=ro&encoder=27_1&enc_pid=deeplinks&enc_lid=${encodeURIComponent(utmParam)}&url=/flight-search/${departure}-${arrival}/${pair.departureDate}/${pair.returnDate}/1adults`;
           const hotelLinkFull = `https://www.momondo.ro/in?a=kan_317693_592929&lc=ro&encoder=27_1&enc_pid=deeplinks&enc_lid=${encodeURIComponent(utmParam)}&url=/hotel-search/${hotelPath}/${pair.departureDate}/${pair.returnDate}/2adults`;
-          
+
           return `<tr class="sws_gen_links_tr">
 <td class="sws_gen_links_td">${displayDate}: <strong> <a class="external" href="${flightLink}" rel="nofollow">ZBOR</a> | <a class="external" href="${hotelLinkFull}" rel="nofollow">CAZARE</a></strong></td>
 </tr>`;
@@ -475,7 +533,6 @@
       const leftRows = generateRows(leftColumn);
       const rightRows = generateRows(rightColumn);
 
-      // Generate final table
       const table = `<table id="datealternative" class="tab-alt-offers tab-alt-offers-2cols" data-ic="ic-mod-ad">
 <tbody>
 <tr>
