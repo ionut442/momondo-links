@@ -444,6 +444,14 @@
       return [];
     }
 
+    function sortDatePairsChronologically(datePairs) {
+      return datePairs.sort((a, b) => {
+        const departureComparison = a.departureDate.localeCompare(b.departureDate);
+        if (departureComparison !== 0) return departureComparison;
+        return a.returnDate.localeCompare(b.returnDate);
+      });
+    }
+
     function formatDisplayDate(d1, d2) {
       const day1 = d1.day;
       const month1 = renameMonth(d1.month);
@@ -507,7 +515,7 @@
 
       if (hasError) return;
 
-      const datePairs = parseDates(lines, dateFormat);
+      const datePairs = sortDatePairsChronologically(parseDates(lines, dateFormat));
 
       if (datePairs.length === 0) {
         document.getElementById('datesError').textContent = 'Could not parse dates';
