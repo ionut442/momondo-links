@@ -364,7 +364,7 @@
       const month2 = monthDisplay[d2.month];
 
       if (month1 === month2 && year1 === year2) return `${d1.day}-${d2.day} ${month1} ${year1}`;
-      if (year1 === year2) return `${d1.day} ${month1} - ${d2.day} ${year1}`;
+      if (year1 === year2) return `${d1.day} ${month1} - ${d2.day} ${month2} ${year1}`;
       return `${d1.day} ${month1} ${year1} - ${d2.day} ${month2} ${year2}`;
     }
 
